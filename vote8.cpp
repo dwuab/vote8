@@ -12,7 +12,6 @@
 #include <fstream>
 #include <cmath>
 #include <ctime>
-#include <ext/hash_map>
 #include <algorithm>
 #include <functional>
 
