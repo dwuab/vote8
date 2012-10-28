@@ -31,34 +31,28 @@ struct bar: std::unary_function<unsigned, unsigned> {
 };
 
 int main(int argc, char** argv) {
-	if (argc != 4) {
+	if (argc != 3) {
 		cout
 				<< "opinion formation on adaptive networks with intensive average degree with 3-state Potts model\n"
-				<< "vote8 K p eta\n";
+				<< "No initial community structure."
+				<< "vote8 p eta\n";
 		exit(1);
 	}
 
 	const int N = 900;
 	const int Nrun = 1;
 
-	int K = boost::lexical_cast<int>(argv[1]);
 	double p = boost::lexical_cast<double>(argv[2]);
 	int eta = boost::lexical_cast<int>(argv[3]);
 
-	double p_t_c = 1.0 * eta * p / N;
-	double p_t = 1.0 * eta * p / K;
+	double p_t = 1.0 * eta * p / N; // normalized p
 	double q = 1 - p;
-	double q_t_c = 1.0 * eta * q / N;
-	double q_t = 1.0 * eta * q / K;
-
-	const int C_start = N - K;
-	const int B_start = K;
+	double q_t = 1.0 * eta * q / N; // normalized q
 
 	const int time_end = 500;
 	const int time_point = 1 + time_end * 2;
 
 	boost::random::uniform_int_distribution<> genN(0, N - 1);
-	boost::random::uniform_int_distribution<> genK(0, K - 1);
 	boost::random::uniform_int_distribution<> gen01(0, 1);
 	boost::random::uniform_int_distribution<> gen3(0, 2);
 	boost::random::uniform_real_distribution<> genReal;
@@ -71,11 +65,11 @@ int main(int argc, char** argv) {
 	boost::multi_array<int, 2> adj_matrix(boost::extents[N][N]);
 
 	ofstream fout(
-			str(format("N%d_K_%d_p_%.3f_eta_%d_m.dat") % N % K % p % eta).c_str()
+			str(format("N%d_p_%.3f_eta_%d_m.dat") % N % p % eta).c_str()
 			);
 
 	ofstream fout1(
-			str(format("N%d_K_%d_p_%.3f_eta_%d_stat.dat") % N % K % p % eta).c_str()
+			str(format("N%d_p_%.3f_eta_%d_stat.dat") % N % p % eta).c_str()
 			);
 
 	boost::array<int, 3> M;
@@ -102,7 +96,7 @@ int main(int argc, char** argv) {
 		M[1] = N / 3;
 		M[2] = N / 3;
 
-		random_shuffle(spins.begin(), spins.end(), randx);
+//		random_shuffle(spins.begin(), spins.end(), randx);
 //		for (int j = 0; j < N; ++j) {
 //			spins[j] = gen3(rng);
 //			++M[spins[j]];
@@ -120,44 +114,17 @@ int main(int argc, char** argv) {
 			N_count[0] = 0;
 			N_count[1] = 0;
 			N_count[2] = 0;
-			int j_start = 0;
-			int j_end = 0;
-			double px = 0.0;
-			double qx = 0.0;
 
-			if (pick < C_start) // block A'
-					{
-//				cout << "A' ";
-				j_start = 0;
-				j_end = C_start;
-				px = p_t;
-				qx = q_t;
-
-			} else if (pick >= C_start && pick < B_start) // block C
-					{
-//				cout << "C ";
-				j_start = C_start;
-				j_end = B_start;
-				px = p_t_c;
-				qx = q_t_c;
-			} else { // block B'
-//				cout << "B' ";
-				j_start = B_start;
-				j_end = N;
-				px = p_t;
-				qx = q_t;
-			}
-
-			for (int j = j_start; j < j_end; ++j) {
+			for (int j = 0; j < N; ++j) {
 				if (j == pick)
 					continue;
 				if (spins[j] == spins[pick])
-					if (genReal(rng) < px) {
+					if (genReal(rng) < p_t) {
 						N_count[spins[j]]++;
 
 					} else {
 					}
-				else if (genReal(rng) < qx) {
+				else if (genReal(rng) < q_t) {
 					N_count[spins[j]]++;
 
 				}
@@ -203,15 +170,6 @@ int main(int argc, char** argv) {
 				fout << sqrt((pow(x1, 2) + pow(x2, 2) + pow(x3, 2)) * 3.0 / 2.0)
 						<< '\n';
 				fout1 << M[0] << ' ' << M[1] << ' ' << M[2] << '\n';
-//				for (int ii=0;ii<C_start;++ii)
-//					cout << spins[ii] << ' ';
-//				cout << '\n';
-//				for (int ii=C_start;ii<B_start;++ii)
-//					cout << spins[ii] << ' ';
-//				cout << '\n';
-//				for (int ii=B_start;ii<N;++ii)
-//					cout << spins[ii] << ' ';
-//				cout << '\n';
 			}
 		}
 	}
