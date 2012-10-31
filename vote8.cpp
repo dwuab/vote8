@@ -34,16 +34,16 @@ int main(int argc, char** argv) {
 	if (argc != 3) {
 		cout
 				<< "opinion formation on adaptive networks with intensive average degree with 3-state Potts model\n"
-				<< "No initial community structure."
+				<< "No initial community structure.\n"
 				<< "vote8 p eta\n";
 		exit(1);
 	}
 
 	const int N = 900;
-	const int Nrun = 1;
+	const int Nrun = 1000;
 
-	double p = boost::lexical_cast<double>(argv[2]);
-	int eta = boost::lexical_cast<int>(argv[3]);
+	double p = boost::lexical_cast<double>(argv[1]);
+	int eta = boost::lexical_cast<int>(argv[2]);
 
 	double p_t = 1.0 * eta * p / N; // normalized p
 	double q = 1 - p;
@@ -68,6 +68,7 @@ int main(int argc, char** argv) {
 			str(format("N%d_p_%.3f_eta_%d_m.dat") % N % p % eta).c_str()
 			);
 
+	// this file records the opinion distribution at the end of the simulation
 	ofstream fout1(
 			str(format("N%d_p_%.3f_eta_%d_stat.dat") % N % p % eta).c_str()
 			);
